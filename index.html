@@ -50,7 +50,7 @@
             gap: 15px;
         }
         .open-section {
-            flex: 1;
+            height: calc(50% - 8px);
             background: #1e3044;
             border-radius: 12px;
             padding: 10px 15px;
@@ -136,7 +136,7 @@
 
         /* CLOSED */
         .closed-section {
-            flex: 1;
+            height: calc(50% - 8px);
             background: #0d2818;
             border-radius: 12px;
             padding: 10px 15px;
@@ -270,11 +270,11 @@
         }
         .ticker {
             display: flex;
-            animation: ticker 180s linear infinite;
+            animation: ticker 300s linear infinite;
             white-space: nowrap;
         }
         @keyframes ticker {
-            0% { transform: translateX(100%); }
+            0% { transform: translateX(50%); }
             100% { transform: translateX(-300%); }
         }
         .ticker span { padding: 0 50px; font-size: 14px; color: #00a8e8; }
