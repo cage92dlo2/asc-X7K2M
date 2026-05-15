@@ -222,9 +222,10 @@
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 1s;
+            visibility: hidden;
+            transition: opacity 1s, visibility 1s;
         }
-        .photo-slide.active { opacity: 1; }
+        .photo-slide.active { opacity: 1; visibility: visible; }
         .photo-slide img {
             max-width: 90%;
             max-height: 75%;
@@ -270,12 +271,12 @@
         }
         .ticker {
             display: flex;
-            animation: ticker 300s linear infinite;
             white-space: nowrap;
+            animation: ticker 120s linear infinite;
         }
         @keyframes ticker {
-            0% { transform: translateX(50%); }
-            100% { transform: translateX(-300%); }
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
         }
         .ticker span { padding: 0 50px; font-size: 14px; color: #00a8e8; }
 
@@ -496,7 +497,8 @@
                 photos.forEach((p, idx) => {
                     photoHTML += `
                         <div class="photo-slide ${idx === 0 ? 'active' : ''}">
-                            <img src="${p.foto}" alt="${p.descrizione}" onerror="this.parentElement.innerHTML='<div class=\\'photo-placeholder\\'>Immagine non disponibile</div><div class=\\'photo-caption\\'>${p.descrizione}</div>'">
+                            <img src="${p.foto}" alt="${p.descrizione}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="photo-placeholder" style="display:none;">Immagine non disponibile</div>
                             <div class="photo-caption">${p.descrizione} (${p.chiuso || p.data})</div>
                         </div>`;
                 });
