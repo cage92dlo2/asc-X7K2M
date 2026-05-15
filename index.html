@@ -83,14 +83,15 @@
         }
         .items-container {
             overflow: hidden;
-            max-height: calc(100% - 60px);
+            max-height: calc(100% - 80px);
+            position: relative;
         }
         .items-scroll {
             animation: scrollUp 40s linear infinite;
         }
         @keyframes scrollUp {
-            0%, 40% { transform: translateY(0); }
-            50%, 90% { transform: translateY(var(--scroll-distance, 0px)); }
+            0%, 30% { transform: translateY(0); }
+            50%, 80% { transform: translateY(var(--scroll-distance, -200px)); }
             100% { transform: translateY(0); }
         }
         .item-row {
@@ -158,10 +159,11 @@
         }
         .closed-scroll {
             animation: scrollClosed 25s linear infinite;
+            overflow: hidden;
         }
         @keyframes scrollClosed {
-            0%, 40% { transform: translateY(0); }
-            50%, 90% { transform: translateY(var(--scroll-closed, 0px)); }
+            0%, 30% { transform: translateY(0); }
+            50%, 80% { transform: translateY(var(--scroll-closed, -100px)); }
             100% { transform: translateY(0); }
         }
         .closed-row {
@@ -332,7 +334,8 @@
     <div class="footer">
         <div class="ticker" id="ticker">
             <span>Safety First — Nessun pacco vale piu della tua salute</span>
-            <span>Hai un finding? Segnalalo al tuo ASC representative!</span>
+            <span>Se percepiamo di essere in una condizione poco sicura, interrompiamo il lavoro e allertiamo un supervisor</span>
+            <span>Controlliamo sempre lo stato dei DPI e cambiamoli quando sono usurati</span>
         </div>
     </div>
 
@@ -457,6 +460,27 @@
             }
             document.getElementById('closedItems').innerHTML = closedHTML || '<div class="loading">Nessun finding completato</div>';
 
+            // Calculate scroll distances
+            setTimeout(() => {
+                const openEl = document.getElementById('openItems');
+                const openContainer = openEl.parentElement;
+                const overflowOpen = openEl.scrollHeight - openContainer.clientHeight;
+                if (overflowOpen > 0) {
+                    openEl.style.setProperty('--scroll-distance', `-${overflowOpen}px`);
+                } else {
+                    openEl.style.animation = 'none';
+                }
+
+                const closedEl = document.getElementById('closedItems');
+                const closedContainer = closedEl.parentElement;
+                const overflowClosed = closedEl.scrollHeight - closedContainer.clientHeight + 40;
+                if (overflowClosed > 0) {
+                    closedEl.style.setProperty('--scroll-closed', `-${overflowClosed}px`);
+                } else {
+                    closedEl.style.animation = 'none';
+                }
+            }, 100);
+
             // Render photos
             const photos = closedItems.filter(i => i.foto);
             const carousel = document.getElementById('photoCarousel');
@@ -488,9 +512,13 @@
             // Ticker update
             const tickerEl = document.getElementById('ticker');
             let tickerHTML = '<span>Safety First — Nessun pacco vale piu della tua salute</span>';
-            tickerHTML += '<span>Hai un finding? Segnalalo al tuo ASC representative!</span>';
+            tickerHTML += '<span>Se percepiamo di essere in una condizione poco sicura, interrompiamo il lavoro e allertare un supervisor</span>';
             tickerHTML += `<span>Open findings: ${openItems.length} | Completed: ${closedItems.length}</span>`;
-            tickerHTML += '<span>Safety First — Nessun pacco vale piu della tua salute</span>';
+            tickerHTML += '<span>Quando movimentiamo i transpallet, controlliamo sempre se c\'e qualcuno intorno a noi</span>';
+            tickerHTML += '<span>Assicuriamoci di lasciare sempre libere e a portata di mano le uscite d\'emergenza e i sistemi antincendio</span>';
+            tickerHTML += '<span>Controlliamo sempre lo stato dei DPI e cambiamoli quando sono usurati</span>';
+            tickerHTML += '<span>In caso di sversamento, avvisiamo subito un supervisor o un manager</span>';
+            tickerHTML += '<span>Ricordiamo di non lasciare pacchi a terra, se lo stow buffer e pieno lasciamo passare i pacchi per farli arrivare nel cassone</span>';
             tickerEl.innerHTML = tickerHTML;
         }
 
