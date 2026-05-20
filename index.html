@@ -489,6 +489,13 @@
             // Render photos
             const photos = closedItems.filter(i => i.foto);
             const carousel = document.getElementById('photoCarousel');
+            
+            // Pulisci interval precedente
+            if (window._carouselInterval) {
+                clearInterval(window._carouselInterval);
+                window._carouselInterval = null;
+            }
+            
             if (photos.length > 0) {
                 let photoHTML = '';
                 photos.forEach((p, idx) => {
@@ -502,15 +509,17 @@
                 carousel.innerHTML = photoHTML;
 
                 // Photo rotation
-                let currentSlide = 0;
-                setInterval(() => {
-                    const slides = carousel.querySelectorAll('.photo-slide');
-                    if (slides.length > 1) {
-                        slides[currentSlide].classList.remove('active');
-                        currentSlide = (currentSlide + 1) % slides.length;
-                        slides[currentSlide].classList.add('active');
-                    }
-                }, 6000);
+                if (photos.length > 1) {
+                    let currentSlide = 0;
+                    window._carouselInterval = setInterval(() => {
+                        const slides = carousel.querySelectorAll('.photo-slide');
+                        if (slides.length > 1) {
+                            slides[currentSlide].classList.remove('active');
+                            currentSlide = (currentSlide + 1) % slides.length;
+                            slides[currentSlide].classList.add('active');
+                        }
+                    }, 6000);
+                }
             } else {
                 carousel.innerHTML = '<div class="no-photos">Nessuna foto disponibile<br><br><span style="font-size:12px;color:#3a5a7a">Aggiungi un URL immagine nella colonna "Foto URL" del Google Sheet</span></div>';
             }
