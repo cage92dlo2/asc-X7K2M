@@ -536,10 +536,21 @@
                 const response = await fetch(SHEET_URL);
                 const text = await response.text();
                 const data = parseCSV(text);
+                // Salva in cache locale
+                localStorage.setItem('asc_board_data', JSON.stringify(data));
+                localStorage.setItem('asc_board_last_update', new Date().toISOString());
                 renderBoard(data);
                 document.getElementById('refreshInfo').textContent = `Ultimo aggiornamento: ${new Date().toLocaleTimeString('it-IT')}`;
             } catch (err) {
-                document.getElementById('openItems').innerHTML = `<div class="loading">Errore caricamento: ${err.message}<br>Verifica che il foglio sia condiviso pubblicamente.</div>`;
+                // Fetch fallito: usa dati dalla cache se disponibili
+                const cached = localStorage.getItem('asc_board_data');
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    const lastUpdate = new Date(localStorage.getItem('asc_board_last_update'));
+                    renderBoard(data);
+                    document.getElementById('refreshInfo').textContent = `Dati offline — ultimo sync: ${lastUpdate.toLocaleTimeString('it-IT')} del ${lastUpdate.toLocaleDateString('it-IT')}`;
+                }
+                // Se non c'è cache, non fa nulla (resta il "Caricamento dati..." iniziale)
             }
         }
 
