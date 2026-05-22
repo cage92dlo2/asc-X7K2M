@@ -89,21 +89,19 @@
             position: relative;
         }
         .items-scroll {
-            animation: scrollUp 60s linear infinite;
+            /* scroll gestito via JS */
         }
-        @keyframes scrollUp {
-            0%, 30% { transform: translateY(0); }
-            50%, 80% { transform: translateY(var(--scroll-distance, -200px)); }
-            100% { transform: translateY(0); }
+        .closed-scroll {
+            /* scroll gestito via JS */
         }
         .item-row {
             display: grid;
             grid-template-columns: 80px 1fr 100px 80px 75px;
             column-gap: 20px;
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-bottom: 1px solid #2a4a6b;
             align-items: center;
-            font-size: 15px;
+            font-size: 12px;
         }
         .item-row.header-row {
             font-weight: 700;
@@ -161,22 +159,13 @@
             background: #2ecc71;
             color: #0d2818;
         }
-        .closed-scroll {
-            animation: scrollClosed 45s linear infinite;
-            overflow: hidden;
-        }
-        @keyframes scrollClosed {
-            0%, 30% { transform: translateY(0); }
-            50%, 80% { transform: translateY(var(--scroll-closed, -100px)); }
-            100% { transform: translateY(0); }
-        }
         .closed-row {
             display: grid;
             grid-template-columns: 80px 1fr 100px 80px;
             column-gap: 20px;
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-bottom: 1px solid #1a5c2a;
-            font-size: 15px;
+            font-size: 12px;
         }
         .closed-row.header-row {
             font-weight: 700;
@@ -465,26 +454,11 @@
             }
             document.getElementById('closedItems').innerHTML = closedHTML || '<div class="loading">Nessun finding completato</div>';
 
-            // Calculate scroll distances
+            // Scroll automatico gestito via JS
             setTimeout(() => {
-                const openEl = document.getElementById('openItems');
-                const openContainer = openEl.parentElement;
-                const overflowOpen = openEl.scrollHeight - openContainer.clientHeight;
-                if (overflowOpen > 0) {
-                    openEl.style.setProperty('--scroll-distance', `-${overflowOpen}px`);
-                } else {
-                    openEl.style.animation = 'none';
-                }
-
-                const closedEl = document.getElementById('closedItems');
-                const closedContainer = closedEl.parentElement;
-                const overflowClosed = closedEl.scrollHeight - closedContainer.clientHeight + 40;
-                if (overflowClosed > 0) {
-                    closedEl.style.setProperty('--scroll-closed', `-${overflowClosed}px`);
-                } else {
-                    closedEl.style.animation = 'none';
-                }
-            }, 100);
+                setupAutoScroll('openItems');
+                setupAutoScroll('closedItems');
+            }, 200);
 
             // Render photos
             const photos = closedItems.filter(i => i.foto);
@@ -535,6 +509,59 @@
             tickerHTML += '<span>In caso di sversamento, avvisiamo subito un supervisor o un manager</span>';
             tickerHTML += '<span>Ricordiamo di non lasciare pacchi a terra, se lo stow buffer e pieno lasciamo passare i pacchi per farli arrivare nel cassone</span>';
             tickerEl.innerHTML = tickerHTML;
+        }
+
+        // Scroll automatico: scorre tutto il contenuto, pausa in alto e in basso
+        const scrollIntervals = {};
+        function setupAutoScroll(elementId) {
+            const el = document.getElementById(elementId);
+            const container = el.parentElement;
+            const overflow = el.scrollHeight - container.clientHeight;
+            
+            // Se non c'è overflow, non serve scroll
+            if (overflow <= 0) {
+                el.style.transform = 'translateY(0)';
+                if (scrollIntervals[elementId]) {
+                    clearInterval(scrollIntervals[elementId]);
+                    scrollIntervals[elementId] = null;
+                }
+                return;
+            }
+            
+            // Pulisci interval precedente
+            if (scrollIntervals[elementId]) {
+                clearInterval(scrollIntervals[elementId]);
+            }
+            
+            let position = 0;
+            let direction = -1; // -1 = scende, 1 = sale
+            let pauseCounter = 0;
+            const PAUSE_FRAMES = 150; // pausa di ~5 secondi (150 * 33ms)
+            const STEP = 1; // pixel per frame
+            
+            scrollIntervals[elementId] = setInterval(() => {
+                if (pauseCounter > 0) {
+                    pauseCounter--;
+                    return;
+                }
+                
+                position += direction * STEP;
+                
+                // Raggiunto il fondo
+                if (position <= -overflow) {
+                    position = -overflow;
+                    direction = 1;
+                    pauseCounter = PAUSE_FRAMES;
+                }
+                // Tornato in cima
+                if (position >= 0) {
+                    position = 0;
+                    direction = -1;
+                    pauseCounter = PAUSE_FRAMES;
+                }
+                
+                el.style.transform = `translateY(${position}px)`;
+            }, 33); // ~30fps
         }
 
         // Flag per sapere se la board è già stata renderizzata almeno una volta
