@@ -536,8 +536,8 @@
             let position = 0;
             let direction = -1; // -1 = scende, 1 = sale
             let pauseCounter = 0;
-            const PAUSE_FRAMES = 150; // pausa di ~5 secondi (150 * 33ms)
-            const STEP = 1; // pixel per frame
+            const PAUSE_FRAMES = 150; // pausa di ~5 secondi (150 * 50ms)
+            const STEP = 0.5; // pixel per frame (più lento)
             
             scrollIntervals[elementId] = setInterval(() => {
                 if (pauseCounter > 0) {
